@@ -1,6 +1,6 @@
 {
-  "name": "slide-toolkit",
-  "version": "2.1.1",
+  "name": "slide-toolkit-last",
+  "version": "0.1.0",
   "description": "Some toolkits",
   "main": "dist/index.js",
   "scripts": {
