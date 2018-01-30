@@ -2,13 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Checkbox, Row, Col } from 'antd';
 
-const CheckboxsWidget = props => (
-  <Checkbox.Group onChange={props.onChange} value={props.value}>
-    <Row>
-      {props.options.enumOptions.map(({ label, value }) => <Col key={value} span={8}><Checkbox value={value}>{label}</Checkbox></Col>)}
-    </Row>
-  </Checkbox.Group>
-);
+const CheckboxsWidget = (props) => {
+  console.log('CheckboxsWidget: ', props.value);
+  return (
+    <Checkbox.Group onChange={props.onChange} value={props.value}>
+      <Row>
+        {props.options.enumOptions.map(({ label, value }) => <Col key={value} span={8}><Checkbox value={value}>{label}</Checkbox></Col>)}
+      </Row>
+    </Checkbox.Group>
+  );
+};
 
 CheckboxsWidget.defaultProps = {
   value: [],

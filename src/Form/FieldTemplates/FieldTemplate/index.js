@@ -5,35 +5,14 @@ import { Form } from 'antd';
 const FormItem = Form.Item;
 
 const formItemLayout = {
-  4: {
-    labelCol: {
-      xs: { span: 24 },
-      sm: { span: 8 },
-    },
-    wrapperCol: {
-      xs: { span: 24 },
-      sm: { span: 16 },
-    },
+  labelCol: {
+    xs: { span: 24 },
+    sm: { span: 7 },
   },
-  6: {
-    labelCol: {
-      xs: { span: 24 },
-      sm: { span: 8 },
-    },
-    wrapperCol: {
-      xs: { span: 24 },
-      sm: { span: 16 },
-    },
-  },
-  12: {
-    labelCol: {
-      xs: { span: 24 },
-      sm: { span: 4 },
-    },
-    wrapperCol: {
-      xs: { span: 24 },
-      sm: { span: 20 },
-    },
+  wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 12 },
+    md: { span: 10 },
   },
 };
 const tailFormItemLayout = {
@@ -104,7 +83,7 @@ const FieldTemplate = (props) => {
       </FormItem>
       :
       <FormItem
-        {...formItemLayout[[schema.column]]}
+        {...formItemLayout}
         className={`${classNames} ant-col-xl-${schema.column * 2}`}
         hasFeedback
         label={schema.label}

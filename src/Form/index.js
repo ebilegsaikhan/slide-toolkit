@@ -1,9 +1,10 @@
 /* eslint no-empty: ["error", { "allowEmptyCatch": true }] */
-
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+// import { Redirect } from 'react-router';
+// import { Link } from 'react-router-dom';
 import Form from 'react-jsonschema-form';
-import { Button } from "antd";
+import { Button, message, Form as andForm } from "antd";
 import style from "./style.less";
 
 import {
@@ -11,8 +12,9 @@ import {
   TextareaWidget,
   CheckboxWidget,
   CheckboxesWidget,
+  DraggerWidget,
   SelectWidget,
-  ExtraSelectWidget,
+  CascaderWidget,
   RadioGroupWidget,
   PhoneWidget,
   DatePickerWidget,
@@ -22,6 +24,7 @@ import {
   NumberWidget,
   RangeWidget,
   ImageWidget,
+  TimePicker,
 } from './Widgets';
 
 import {
@@ -30,114 +33,19 @@ import {
   ObjectFieldTemplate,
 } from './FieldTemplates';
 
-// import { studentData } from './mockjs';
+const FormItem = andForm.Item;
 
 class FormComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
       formData: {},
-      parentList: [],
       isSubmitted: false,
     };
   }
 
   componentDidMount() {
-    this.fetchForm();
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    if (this.state.parentList && this.state.parentList.length) {
-      try {
-        let arrayOfChanges = [];
-
-        let clonedParentList = JSON.parse(JSON.stringify(this.state.parentList));
-
-        clonedParentList.forEach((entry) => {
-          let before;
-          let after;
-
-          if (entry.parentRoute.length === 1) {
-            const {
-              [entry.parentRoute[0]]: value,
-            } = this.state.formData;
-            before = value;
-            const {
-              [entry.parentRoute[0]]: nextValue,
-            } = nextState.formData;
-            after = nextValue;
-          } else if (entry.parentRoute.length === 2) {
-            const {
-              [entry.parentRoute[0]]: {
-                [entry.parentRoute[1]]: value,
-              },
-            } = this.state.formData;
-            before = value;
-            const {
-              [entry.parentRoute[0]]: {
-                [entry.parentRoute[1]]: nextValue,
-              },
-            } = nextState.formData;
-            after = nextValue;
-          } else if (entry.parentRoute.length === 3) {
-            const {
-              [entry.parentRoute[0]]: {
-                [entry.parentRoute[1]]: {
-                  [entry.parentRoute[2]]: value,
-                },
-              },
-            } = this.state.formData;
-            before = value;
-            const {
-              [entry.parentRoute[0]]: {
-                [entry.parentRoute[1]]: {
-                  [entry.parentRoute[2]]: nextValue,
-                },
-              },
-            } = nextState.formData;
-            after = nextValue;
-          }
-
-          if (before !== after) {
-            arrayOfChanges.push(entry.route);
-
-            const recursiveFn = (array, route) => {
-              let found = array.find(i => JSON.stringify(i.parentRoute) === JSON.stringify(route));
-
-              if (found) {
-                arrayOfChanges.push(found.route);
-                recursiveFn(array, found.route);
-              }
-            };
-            recursiveFn(clonedParentList, entry.route);
-          }
-        });
-
-        let tempFormData = nextState.formData;
-
-        let t = JSON.parse(JSON.stringify(tempFormData));
-
-        arrayOfChanges.forEach((entry) => {
-          let e = JSON.parse(JSON.stringify(entry));
-
-          const recursive = (object, array) => {
-            if (array.length === 1) {
-              object[array[0]] = undefined;
-              return;
-            }
-
-            recursive(object[array.shift()], array);
-          };
-          recursive(t, e);
-        });
-
-        if (arrayOfChanges.length && t && Object.keys(t).length) {
-          this.setState({
-            formData: t,
-          });
-        }
-      } catch (error) {}
-    }
+    this.fetchData();
   }
 
   onChangeHandler = (formObject) => {
@@ -148,102 +56,43 @@ class FormComponent extends Component {
 
   onSubmitHandler = async () => {
     let submitObject = {};
-    submitObject = { ...{ formData: this.state.formData } };
+    submitObject = { ...{ body: this.state.formData } };
 
-    if (this.props.dataParams && this.props.dataParams._id) {
-      submitObject = { ...submitObject, ...{ _id: this.props.dataParams._id } };
-    }
+    console.log({ formdata: this.state.formData });
 
     if (this.props.url) {
       submitObject = { ...submitObject, ...{ url: this.props.url } };
     }
 
-    // const submitResult = this.props.submitAction(submitObject);
     await this.props.submitAction(submitObject);
     if (this.props.error) {
       this.setState({
         isSubmitted: true,
       });
       console.log(this.props.error, this.props.errorMessage);
-    } else if (this.props.afterSubmit) {
-      this.props.afterSubmit();
+      message.error('Алдаа гарлаа', this.props.errorMessage);
+    } else {
+      message.success('Амжилттай хүлээн авлаа.');
+      // setTimeout(() => {
+      //   window.location.href = "/products";
+      // }, 4000);
     }
-
-
-    // if (submitResult && submitResult.then) {
-    //   submitResult.then(() => {
-    //     if (this.props.afterSubmit) {
-    //       this.props.afterSubmit();
-    //     }
-    //   });
-    // } else if (this.props.afterSubmit) {
-    //   this.props.afterSubmit();
-    // }
   }
 
-  onErrorHandler = (formObject, a, b, c) => {
-    console.log('!!!!', formObject, a, b, c);
+  onErrorHandler = (a, b, c, d) => {
+    console.log({
+      a, b, c, d,
+    });
     this.setState({
       isSubmitted: true,
     });
   }
 
-  setParents = (formData) => {
-    let tempParentList = [];
-    const recursive = (object, route) => {
-      if (object.parent && object.parent.length) {
-        if (typeof object.parent[0] === 'string') {
-          tempParentList.push({
-            route,
-            parentRoute: object.parent,
-          });
-        } else {
-          object.parent.forEach((entry) => {
-            tempParentList.push({
-              route,
-              parentRoute: entry,
-            });
-          });
-        }
-      }
-
-      if (!object.properties) {
-        return true;
-      }
-
-      Object.keys(object.properties).forEach((key) => {
-        recursive(object.properties[key], [...route, key]);
-      });
-      return true;
-    };
-
-    recursive(formData.schema, []);
-    this.setState({
-      parentList: tempParentList,
-    });
-
-    return true;
-  }
-
-  fetchForm = async () => {
-    if (!this.props.form || !Object.keys(this.props.form).length) {
-      await this.props.fetchForm({ model: [this.props.modelName] });
-    }
-
-    this.setParents(this.props.form);
-
-    if (this.props.setLoading) {
-      this.props.setLoading(false);
-    }
-    await this.fetchData();
-  }
 
   fetchData = async () => {
     if (this.props.fetchData) {
       let sendObject = this.props.dataParams || {};
-      if (this.props.url) {
-        sendObject = { ...sendObject, url: this.props.url };
-      }
+
       await this.props.fetchData(sendObject);
       this.setState({ formData: {} }, () => {
         this.setState({ formData: this.props.data });
@@ -268,13 +117,15 @@ class FormComponent extends Component {
     });
   }
 
+
   widgets = {
     input: InputWidget,
     textarea: TextareaWidget,
+    cascader: CascaderWidget,
     select: SelectWidget,
-    "extra-select": ExtraSelectWidget,
     "radio-group": RadioGroupWidget,
     phone: PhoneWidget,
+    time: TimePicker,
     date: DatePickerWidget,
     year: InputWidget,
     checkbox: CheckboxWidget,
@@ -282,6 +133,7 @@ class FormComponent extends Component {
     tree: TreeWidget,
     code: CodeWidget,
     email: EmailWidget,
+    imageDragger: DraggerWidget,
     image: ImageWidget,
     number: NumberWidget,
     range: RangeWidget,
@@ -296,6 +148,14 @@ class FormComponent extends Component {
     const onError = this.props.onError ? this.props.onError : this.onErrorHandler;
     const onSubmit = this.props.onSubmit ? this.props.onSubmit : this.onSubmitHandler;
     const liveValidate = this.props.liveValidate ? this.props.liveValidate : this.state.isSubmitted;
+
+    const submitFormLayout = {
+      wrapperCol: {
+        xs: { span: 24, offset: 0 },
+        sm: { span: 10, offset: 7 },
+      },
+    };
+
     return (
       <Form
         schema={(this.props.form && Object.keys(this.props.form).length) ? this.props.form.schema : {}}
@@ -315,14 +175,11 @@ class FormComponent extends Component {
         onSubmit={(formObject) => { onSubmit(formObject); }}
         onError={(formObject) => { onError(formObject); }}
       >
-        <div className="ant-modal-footer">
-          {this.props.clearButton ?
-            <Button type="button" onClick={() => this.clear()}>{this.props.cancelButtonName || 'Цэвэрлэх'}</Button> :
-            <Button type="button" onClick={() => this.props.onCancel()}>{this.props.cancelButtonName || 'Болих'}</Button>
-          }
-
-          <Button htmlType="submit" loading={this.props.dataIsLoading} type="primary">{this.props.submitButtonName || 'Бүртгэх'}</Button>
-        </div>
+        <FormItem className="ant-col-md-24" {...submitFormLayout} style={{ marginTop: '15px' }}>
+          {this.props.dataParams.body.id ? <Button type="danger" style={{ marginRight: 8 }} onClick={() => this.props.delete(this.props.dataParams || {})} >Устгах</Button> : null}
+          <Button style={{ marginRight: 8 }} type="button" onClick={() => this.clear()}>{this.props.cancelButtonName || 'Цэвэрлэх'}</Button>
+          <Button style={{ marginRight: 8 }} htmlType="submit" loading={this.props.dataIsLoading} type="primary">{this.props.submitButtonName || 'Оруулах'}</Button>
+        </FormItem>
       </Form>
     );
   }
@@ -330,49 +187,39 @@ class FormComponent extends Component {
 
 FormComponent.defaultProps = {
   error: undefined,
+  delete: undefined,
   errorMessage: undefined,
   fetchData: undefined,
   form: undefined,
   dataIsLoading: undefined,
-  onCancel: undefined,
   dataParams: {},
   data: undefined,
-  // refresh: undefined,
-  modelName: '',
   onChange: undefined,
   onError: undefined,
   onSubmit: undefined,
+  submitAction: undefined,
   liveValidate: undefined,
   cancelButtonName: '',
   submitButtonName: '',
-  clearButton: undefined,
-  setLoading: undefined,
-  afterSubmit: undefined,
   url: '',
 };
 
 FormComponent.propTypes = {
   error: PropTypes.bool,
+  delete: PropTypes.func,
   errorMessage: PropTypes.string,
   form: PropTypes.object,
-  fetchForm: PropTypes.func.isRequired,
   fetchData: PropTypes.func,
-  onCancel: PropTypes.func,
   dataIsLoading: PropTypes.bool,
-  setLoading: PropTypes.func,
-  submitAction: PropTypes.func.isRequired,
+  submitAction: PropTypes.func,
   dataParams: PropTypes.object,
-  // refresh: PropTypes.func,
   data: PropTypes.object,
-  modelName: PropTypes.string,
   onChange: PropTypes.func,
   onError: PropTypes.func,
   onSubmit: PropTypes.func,
   liveValidate: PropTypes.bool,
   cancelButtonName: PropTypes.string,
   submitButtonName: PropTypes.string,
-  clearButton: PropTypes.bool,
-  afterSubmit: PropTypes.func,
   url: PropTypes.string,
 };
 

@@ -16,7 +16,7 @@ const ObjectFieldTemplate = (props) => {
     );
   }
   return (
-    <div className={`ant-row ant-col-md-24 mb-3`}>
+    <div className={`ant-row ant-col-md-24`}>
       <div className={`ant-row`}>
         {schema.label}
         {description}
