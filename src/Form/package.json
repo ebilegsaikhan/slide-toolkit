@@ -1,0 +1,11 @@
+{
+  "name": "model-based-form",
+  "version": "1.0.0",
+  "description": "Model based json schema form. Using mozilla-form-schema-form, antd, redux.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

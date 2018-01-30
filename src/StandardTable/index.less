@@ -1,0 +1,28 @@
+@import "~antd/lib/style/themes/default.less";
+
+.standardTable {
+  :global {
+    .ant-table-pagination {
+      margin-top: 24px;
+    }
+    .ant-table-thead > tr > th {
+      white-space: nowrap;
+    }
+    .ant-table-tbody > tr > td {
+      cursor: pointer;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      padding: 6px;
+    }
+  }
+
+  .tableAlert {
+    margin-bottom: 16px;
+  }
+}
+
+.selected > td {
+  background-color: @blue-6 !important;
+  color: #fff;
+}
