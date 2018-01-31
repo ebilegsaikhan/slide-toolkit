@@ -47,7 +47,7 @@ export default class PageHeader extends PureComponent {
     linkElement: PropTypes.func,
     title: PropTypes.string,
     logo: PropTypes.string,
-    content: PropTypes.string,
+    content: PropTypes.object,
     className: PropTypes.string,
     extraContent: PropTypes.string,
     action: PropTypes.string,

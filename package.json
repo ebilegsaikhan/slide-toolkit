@@ -1,6 +1,6 @@
 {
-  "name": "slide-toolkit-last",
-  "version": "0.1.0",
+  "name": "slide-admin-toolkit",
+  "version": "0.1.1",
   "description": "Some toolkits",
   "main": "dist/index.js",
   "scripts": {
@@ -44,6 +44,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Delgee/slide-toolkit"
+    "url": "https://github.com/ebilegsaikhan/slide-toolkit"
   }
 }
